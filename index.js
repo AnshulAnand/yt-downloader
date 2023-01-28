@@ -12,14 +12,19 @@ app.get('/', (req, res) => {
 })
 
 app.post('/download', (req, res) => {
-  const url = req.body.URL
-  const iTag = 18
-  ytdl(url, {
+  console.log(req.body)
+  const { URL, iTag } = req.body
+  ytdl(URL, {
     filter: format => {
-      return format.itag === iTag
+      return format.itag == iTag
     },
-  }).pipe(fs.createWriteStream('video.mp4'))
-  res.send('Downloaded')
+  })
+    .pipe(fs.createWriteStream('video.mp4'))
+    .on('finish', () => {
+      res.download('./video.mp4', error =>
+        console.log('Video downloading error: ', error || 'No error')
+      )
+    })
 })
 
 const PORT = process.env.PORT || 3000
